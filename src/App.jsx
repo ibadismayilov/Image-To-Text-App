@@ -14,37 +14,63 @@ const App = () => {
   const handleRecognizeText = () => {
     setLoading(true);
     setError('');
+  
+    const img = new Image();
+    img.src = image;
 
-    Tesseract.recognize(
-      image,
-      'eng+tur+aze+spa+fra+deu+ita+por+rus+chi_sim+jpn',
-      {
-        logger: info => console.log(info),
-      }
-    ).then(({ data: { text } }) => {
-      setText(text);
-      setLoading(false);
-    }).catch(err => {
-      setError('Text recognition failed');
-      setLoading(false);
-    });
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+  
+      const width = img.width;
+      const height = img.height;
+  
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+  
+      const optimizedImage = canvas.toDataURL();
+
+      Tesseract.recognize(
+        optimizedImage,
+        'eng+tur+aze+rus',
+        {
+          logger: info => console.log(info),
+        }
+      ).then(({ data: { text } }) => {
+        setText(text);
+        setLoading(false);
+      }).catch(err => {
+        setError('Text recognition failed');
+        setLoading(false);
+      });
+    };
   };
 
   return (
-    <div className='wrapper'>
-      <div className='container'>
-        <div class="file-upload-container">
-          <input type="file" accept="image/*" id="file-input" class="file-input" onChange={handleFileChange} />
-          <label for="file-input" class="file-label">Choose File</label>
+    <div className="wrapper">
+      <div className="container">
+        <div className="file-upload-container">
+          <input
+            type="file"
+            accept="image/*"
+            id="file-input"
+            className="file-input"
+            onChange={handleFileChange}
+          />
+          <label htmlFor="file-input" className="file-label">
+            Choose File
+          </label>
         </div>
-        <div className='image-and-recognized'>
-          <div className='images'>
-            <div className='get-image'>
-              <img src={image} alt='Selection is pending' />
+
+        <div className="image-and-recognized">
+          <div className="images">
+            <div className="get-image">
+              {image && <img src={image} alt="Selected" />}
             </div>
           </div>
-          <div className='recognized'>
-            <div className='recognized-items'>
+          <div className="recognized">
+            <div className="recognized-items">
               <h3>Recognized Text</h3>
               <pre>{text}</pre>
               {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -52,8 +78,12 @@ const App = () => {
           </div>
         </div>
 
-        <div className='recognized-button'>
-          <button className='btn-grad' onClick={handleRecognizeText} disabled={!image || loading}>
+        <div className="recognized-button">
+          <button
+            className="btn-grad"
+            onClick={handleRecognizeText}
+            disabled={!image || loading}
+          >
             {loading ? 'Processing...' : 'Recognize Text'}
           </button>
         </div>
