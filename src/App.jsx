@@ -33,13 +33,15 @@ const App = () => {
   return (
     <div className='wrapper'>
       <div className='container'>
-        <input type="file" accept="image/*" onChange={handleFileChange} />
+        <div class="file-upload-container">
+          <input type="file" accept="image/*" id="file-input" class="file-input" onChange={handleFileChange} />
+          <label for="file-input" class="file-label">Choose File</label>
+        </div>
         <div className='image-and-recognized'>
           <div className='images'>
             <div className='get-image'>
               <img src={image} alt='Selection is pending' />
             </div>
-
           </div>
           <div className='recognized'>
             <div className='recognized-items'>
