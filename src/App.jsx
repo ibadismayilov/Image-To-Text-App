@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
 import Tesseract from 'tesseract.js';
+import './App.css';
 
 const App = () => {
   const [image, setImage] = useState(null);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [imageLoading, setImageLoading] = useState(false);
 
   const handleFileChange = (e) => {
-    setImage(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    if (file) {
+      setImageLoading(true);
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl);
+    }
+  };
+
+  const handleButtonClick = () => {
+    document.getElementById('file-input').click();
   };
 
   const handleRecognizeText = () => {
@@ -49,44 +60,44 @@ const App = () => {
 
   return (
     <div className="wrapper">
-      <div className="container">
-        <div className="file-upload-container">
+      <h1>Free Online OCR</h1>
+      <p>Extract text from Images, PDFs, and Documents with one click.</p>
+
+      <div className="image-and-recognized">
+        <div className="upload-area">
+          {imageLoading && !image ? (
+            <p>Loading image...</p>
+          ) : (
+            <img
+              src={image || "/path-to-icon.png"}
+              alt="Selected or Default"
+              onLoad={() => setImageLoading(false)}
+              onError={() => {
+                setImage(null);
+                setImageLoading(false);
+              }}
+            />
+          )}
+          <p>Drag & Drop files here to upload</p>
+          <div className="or">or</div>
+          <button onClick={handleButtonClick}>Choose File</button>
           <input
             type="file"
-            accept="image/*"
             id="file-input"
-            className="file-input"
+            style={{ display: 'none' }}
             onChange={handleFileChange}
           />
-          <label htmlFor="file-input" className="file-label">
-            Choose File
-          </label>
         </div>
 
-        <div className="image-and-recognized">
-          <div className="images">
-            <div className="get-image">
-              {image && <img src={image} alt="Selected" />}
-            </div>
-          </div>
+        {image && (
           <div className="recognized">
-            <div className="recognized-items">
-              <h3>Recognized Text</h3>
-              <pre>{text}</pre>
-              {error && <p style={{ color: 'red' }}>{error}</p>}
-            </div>
+            <h3>Recognized Text</h3>
+            <pre>{text || 'No text recognized yet. Click the button below to start.'}</pre>
+            <button className="btn-grad" onClick={handleRecognizeText} disabled={loading}>
+              {loading ? 'Processing...' : 'Recognize Text'}
+            </button>
           </div>
-        </div>
-
-        <div className="recognized-button">
-          <button
-            className="btn-grad"
-            onClick={handleRecognizeText}
-            disabled={!image || loading}
-          >
-            {loading ? 'Processing...' : 'Recognize Text'}
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
